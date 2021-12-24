@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            width: 1898px;
+            height: 931px;
+        }
+
+        .circle {
+            display: block;
+            background: black;
+            border-radius: 50%;
+            height: 100px;
+            width: 100px;
+            margin: 0;
+            position: absolute;
+            z-index: 0;
+        }
+
+        #score {
+            position: fixed;
+            top: 0;
+            right: 0;
+            color: red;
+            font-size: 4em;
+            font-weight: 500;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        #info {
+            font-size: 12px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        #speed {
+            z-index: 1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div>
+        <span id="score">点击小球得分</span>
+        <div id="info">
+            <div>红色：1分</div>
+            <div>绿色：2分</div>
+            <div>蓝色：3分</div>
+        </div>
+        <button onclick="speedUp()">增速</button>
+        <button onclick="slowDown()">减速</button>
+        <div id="speed">当前运动频率：30ms</div>
+    </div>
+    <script>
+        // 小球宽高
+        var width = 100;
+        var height = 100;
+
+        var count = 0;
+        var circleList = document.querySelectorAll(".circle");
+        var colors = ["red", "green", "blue"];
+        var score = document.querySelector("#score");
+        // 小球每次移动消耗时间(越小移动越快)
+        var time = 30;
+
+        // 每T毫秒创建一个小球
+        var T = 100;
+        setInterval(() => {
+            var newElement = create();
+            newElement.addEventListener("mouseover", remove);
+            move(newElement);
+        }, T);
+
+        // 创建1个小球
+        function create() {
+            var newCircle = document.createElement("figure");
+            newCircle.setAttribute("class", "circle");
+            newCircle.style.left = Math.random() * (document.body.clientWidth - 100) + 1 + "px";
+            newCircle.style.top = Math.random() * (document.body.clientHeight - 100) + 1 + "px";
+            newCircle.style.background = colors[Math.floor(Math.random() * 3)];
+            document.body.appendChild(newCircle);
+            circleList = document.querySelectorAll(".circle");
+            document.querySelector("#speed").innerText = "当前运动频率：" + time + "ms";
+            return newCircle;
+        }
+
+        // 为小球绑定点击事件，点击小球，小球被移除
+        function remove(eRemove) {
+            eRemove.target.remove();
+            clearInterval(eRemove.target.intervalID);
+            switch (eRemove.target.style.background) {
+                case "red":
+                    count += 1;
+                    break;
+                case "green":
+                    count += 2;
+                    break;
+                case "blue":
+                    count += 3;
+                    break;
+            }
+            score.innerText = count + "分";
+        }
+
+        // 小球移动
+        function move(element) {
+            // 小球在x轴和y轴方向的速度，以下值为属于[-10， 10]的随机整数
+            var xSpeed = Math.floor(Math.random() * 21 - 10);
+            var ySpeed = Math.floor(Math.random() * 21 - 10);
+            element.intervalID = setInterval(function () {
+                console.log(123);
+                var left = parseFloat(element.style.left);
+                var top = parseFloat(element.style.top);
+                // 设置边界，小球触边消失
+                if (left < 10 || left > (document.body.clientWidth - width - 10) || top < 10 || top > (document.body.clientHeight - height - 10)) {
+                    element.remove();
+                    clearInterval(element.intervalID);
+                } else {
+                    element.style.left = element.offsetLeft + xSpeed + "px";
+                    element.style.top = element.offsetTop + ySpeed + "px";
+                }
+            }, time);
+        }
+
+        // 小球移动增速
+        function speedUp() {
+            if (time <= 10) {
+                time = 10;
+            } else {
+                time -= 10;
+            }
+        }
+
+        // 小球移动减速
+        function slowDown() {
+            time += 10;
+        }
+
+    </script>
+</body>
+
+</html>
